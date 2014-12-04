@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from fabric.api import local, cd, abort, execute
+from fabric.api import local, cd, abort, execute, lcd
 from fabric.contrib.console import confirm
 import os
 
@@ -20,9 +20,9 @@ def prereqs():
 
 # Setup Web2py
 def setup_web2py():
-    with cd("/opt"):
+    with lcd("/opt"):
         if os.path.isdir('/opt/web2py'):
-            with cd("/opt/web2py"):
+            with lcd("/opt/web2py"):
                 local("git pull")
         else:
             local("git clone https://github.com/web2py/web2py.git web2py")
@@ -111,11 +111,11 @@ def make_symlinks():
 
 # Start web2py
 def start_web2py():
-    with cd("/opt/web2py"):
+    with lcd ("/opt/web2py"):
         local("python web2py.py -c server.crt -k server.key -p 8443 -i 127.0.0.1 --minthreads=40 -a <recycle>")
-        #Browse to https://localhost:8443/admin/ and
-        print "Enter your web2py administration password in the web page that follows."
-        local("iceweasel https://localhost:8443/admin/ ")
+    #Browse to https://localhost:8443/admin/ and
+    print "Enter your web2py administration password in the web page that follows."
+    local("iceweasel https://localhost:8443/admin/ ")
 
 
 def firewall_warning():
@@ -145,13 +145,13 @@ def install_kvasir():
 def clone_kvasir():
     print "Cloning makes a separate git installation of the Kvasir code allowing for updates / branchs / merging."
     print "Alternatively, you can git clone directly from Github."
-    with cd("/opt/web2py/applications"):
+    with lcd("/opt/web2py/applications"):
         if confirm("Clone separate?"):
             # Clone separate
             if os.path.isdir("kvasir"):
                 local("git clone --depth=1 file:///opt/Kvasir kvasir</pre>")
             else:
-                with cd("kvasir"):
+                with lcd("kvasir"):
                     print "Already exists. Updating..."
                     local("git pull")
         else:
@@ -159,7 +159,7 @@ def clone_kvasir():
             if not os.path.isdir("Kvasir"):
                 local("git clone https://github.com/KvasirSecurity/Kvasir.git kvasir")
             else:
-                with cd("kvasir"):
+                with lcd("kvasir"):
                     print "Already exists. Updating..."
                     local("git pull")
 
