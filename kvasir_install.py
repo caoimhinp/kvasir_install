@@ -6,7 +6,7 @@ from fabric.contrib.console import confirm
 
 def check_root():
     user = local("whoami", capture = True)
-    if not user.contains('root'):
+    if not 'root' in user:
         abort("Must be root to run.")
 
 
