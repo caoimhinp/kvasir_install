@@ -2,6 +2,7 @@
 
 from fabric.api import local, cd, abort, execute
 from fabric.contrib.console import confirm
+import os
 
 
 def check_root():
@@ -20,7 +21,10 @@ def prereqs():
 # Setup Web2py
 def setup_web2py():
     with cd("/opt"):
-        local("git clone https://github.com/web2py/web2py.git web2py")
+        if os.path.isdir('/opt/web2py'):
+            local("git pull")
+        else:
+            local("git clone https://github.com/web2py/web2py.git web2py")
 
 
 def get_postgres_version():
@@ -98,8 +102,10 @@ def verify_ssl():
 # OPTIONAL: symlink the server.key and server.crt into postgres's run-time data directory
 def make_symlinks():
     data_directory = local("grep 'data_directory' /etc/postgresql/*/main/postgresql.conf", capture = True)
-    local("ln -s /etc/ssl/private/server.key /var/lib/postgresql/*/main/server.key")
-    local("ln -s /etc/ssl/certs/server.crt /var/lib/postgresql/*/main/server.crt")
+    if not os.path.exists(data_directory + "/server.key"):
+        local("ln -s /etc/ssl/private/server.key %s/server.key" % data_directory)
+    if not os.path.exists(data_directory + "/server.crt"):
+        local("ln -s /etc/ssl/certs/server.crt %s/server.crt" % data_directory)
 
 
 # Start web2py
@@ -141,10 +147,20 @@ def clone_kvasir():
     with cd("/opt/web2py/applications"):
         if confirm("Clone separate?"):
             # Clone separate
-            local("git clone --depth=1 file:///opt/Kvasir kvasir</pre>")
+            if os.path.isdir("kvasir"):
+                local("git clone --depth=1 file:///opt/Kvasir kvasir</pre>")
+            else:
+                with cd("kvasir"):
+                    print "Already exists. Updating..."
+                    local("git pull")
         else:
             # Clone directly
-            local("git clone https://github.com/KvasirSecurity/Kvasir.git kvasir")
+            if not os.path.isdir("Kvasir"):
+                local("git clone https://github.com/KvasirSecurity/Kvasir.git kvasir")
+            else:
+                with cd("kvasir"):
+                    print "Already exists. Updating..."
+                    local("git pull")
 
 
 # Kvasir Setup
