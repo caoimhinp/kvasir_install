@@ -22,7 +22,8 @@ def prereqs():
 def setup_web2py():
     with cd("/opt"):
         if os.path.isdir('/opt/web2py'):
-            local("git pull")
+            with cd("/opt/web2py"):
+                local("git pull")
         else:
             local("git clone https://github.com/web2py/web2py.git web2py")
 
